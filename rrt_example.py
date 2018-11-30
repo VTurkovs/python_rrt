@@ -10,7 +10,6 @@ import copy
 
 show_animation = True
 
-
 class RRT:
     """
     Class for RRT Planning
@@ -33,6 +32,7 @@ class RRT:
         self.goalSampleRate = goalSampleRate
         self.maxIter = maxIter
         self.obstacleList = obstacleList
+
 
     def Planning(self, animation=True):
         """
@@ -89,6 +89,7 @@ class RRT:
 
         return path
 
+
     def DrawGraph(self, rnd=None):
         """
         Draw Graph
@@ -110,25 +111,24 @@ class RRT:
         plt.grid(True)
         plt.pause(0.01)
 
+
     def GetNearestListIndex(self, nodeList, rnd):
-        dlist = [(node.x - rnd[0]) ** 2 + (node.y - rnd[1])
-                 ** 2 for node in nodeList]
+        dlist = [(node.x - rnd[0]) ** 2 + (node.y - rnd[1]) ** 2 for node in nodeList]
         minind = dlist.index(min(dlist))
         return minind
 
-    def __CollisionCheck(self, node, obstacleList):
 
+    def __CollisionCheck(self, node, obstacleList):
         for (ox, oy, size) in obstacleList:
             dx = ox - node.x
             dy = oy - node.y
             d = math.sqrt(dx * dx + dy * dy)
             if d <= size:
                 return False  # collision
-
         return True  # safe
 
 
-class Node():
+class Node:
     """
     RRT Node
     """
