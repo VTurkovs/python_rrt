@@ -32,6 +32,8 @@ class Node:
         self.y = y
         self.z = z
         self.neighbors = []
+        self.distance = np.inf
+        self.previous = None
 
 
 class Edge:
@@ -63,27 +65,28 @@ def roadmap_construction(node_count, neighbor_count=5):
                 node_near.neighbors.append(node)
                 E.append(edge)
 
-
     node_init = Node(0, 0, 0)
+    node_init.distance = 0
     V.append(node_init)
     nodes_near = nearest_vertices(node_init, V, 1)
-    node_init.neighbors.append(nodes_near)
+    node_init.neighbors.extend(nodes_near)
     nodes_near[0].neighbors.append(node_init)
     E.append(Edge(node_init, nodes_near[0]))
 
-    node_goal = Node(-40, 36, 48)
+    node_goal = Node(-400, 360, 250)
     V.append(node_goal)
     nodes_near = nearest_vertices(node_goal, V, 1)
-    node_goal.neighbors.append(nodes_near)
+    node_goal.neighbors.extend(nodes_near)
     nodes_near[0].neighbors.append(node_goal)
     E.append(Edge(node_goal, nodes_near[0]))
 
-    get_path(E, node_init, node_goal)
+    path = get_path(V, node_goal)
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     draw_graph(E, ax, '-g')
-    # draw_vertices(V, ax, 'r')
+    draw_graph(path, ax, '-r')
+    # draw_vertices(path, ax, 'r')
 
 
 def draw_graph(edges, ax, color='-g'):
@@ -119,11 +122,28 @@ def random_configuration(min_x=-500, max_x=500, min_y=-500, max_y=500, min_z=-50
     return Node(x, y, z)
 
 
-def get_path(graph, start, goal):
+def get_path(graph, goal_node):
     path = []
+    Q = graph.copy()
+    while len(Q) > 0:
+        distance_list = [q.distance for q in Q]
+        index = distance_list.index(min(distance_list))
+        del(distance_list[index])
+        q = Q.pop(index)
+        for neighbor in q.neighbors:
+            alt = q.distance + distance_between(q, neighbor)
+            if alt < neighbor.distance:
+                neighbor.distance = alt
+                neighbor.previous = q
+    node = goal_node
+    while node.previous is not None:
+        path.append(Edge(node, node.previous))
+        node = node.previous
+    return path
 
-    for node in graph:
 
+def distance_between(node1, node2):
+    return np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2 + (node2.z - node1.z) ** 2)
 
 
 if __name__ == '__main__':
