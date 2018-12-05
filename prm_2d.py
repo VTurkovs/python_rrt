@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 '''
 n - number of nodes to put in the roadmap
@@ -27,10 +26,9 @@ end for
 
 
 class Node:
-    def __init__(self, x, y, z):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.z = z
         self.neighbors = []
         self.distance = np.inf
         self.previous = None
@@ -40,12 +38,10 @@ class Edge:
     def __init__(self, node1, node2):
         self.x = [node1.x, node2.x]
         self.y = [node1.y, node2.y]
-        self.z = [node1.z, node2.z]
 
     def reverse(self):
         self.x = [self.x[1], self.x[0]]
         self.y = [self.y[1], self.y[0]]
-        self.z = [self.z[1], self.z[0]]
 
 
 def roadmap_construction(node_count, neighbor_count=5):
@@ -81,31 +77,30 @@ def roadmap_construction(node_count, neighbor_count=5):
     E.append(Edge(goal, nodes_near[0]))
 
     path = get_path(V, goal)
-
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    draw_graph(E, ax, '-g')
-    draw_graph(path, ax, '-r')
-    plt.title("Node count: {0}; neighbor count: {1}; \nstart: ({2}, {3}, {4}); \ngoal: ({5}, {6}, {7})".
-              format(node_count, neighbor_count, np.round(start.x), np.round(start.y), np.round(start.z),
-                     np.round(goal.x), np.round(goal.y), np.round(goal.z)))
+    plt.figure()
+    plt.ioff()
+    draw_graph(E, '-g')
+    draw_graph(path, '-r')
+    # draw_vertices(path, ax, 'r')
+    plt.title("Node count: {0}; neighbor count: {1}; \nstart: ({2}, {3}); \ngoal: ({4}, {5})".
+              format(node_count, neighbor_count, np.round(start.x), np.round(start.y),
+                     np.round(goal.x), np.round(goal.y)))
     plt.ioff()
     plt.show()
-    # draw_vertices(path, ax, 'r')
 
 
-def draw_graph(edges, ax, color='-g'):
+def draw_graph(edges, color='-g'):
     for edge in edges:
-        ax.plot([edge.x[0], edge.x[1]], [edge.y[0], edge.y[1]], [edge.z[0], edge.z[1]], color)
+        plt.plot([edge.x[0], edge.x[1]], [edge.y[0], edge.y[1]], color)
 
 
-def draw_vertices(vertices, ax, color='r'):
+def draw_vertices(vertices, color='r'):
     for node in vertices:
-        ax.scatter(node.x, node.y, node.z, c=color)
+        plt.scatter(node.x, node.y, c=color)
 
 
 def nearest_vertices(q, graph, neighbor_count=5):
-    rho_list = [(node.x - q.x) ** 2 + (node.y - q.y) ** 2 + (node.z - q.z) ** 2 for node in graph]
+    rho_list = [(node.x - q.x) ** 2 + (node.y - q.y) ** 2 for node in graph]
     i = 0
     nodes_near = []
     graph2 = graph.copy()
@@ -118,11 +113,10 @@ def nearest_vertices(q, graph, neighbor_count=5):
     return nodes_near
 
 
-def random_configuration(min_x=-500, max_x=500, min_y=-500, max_y=500, min_z=-500, max_z=500):
+def random_configuration(min_x=-500, max_x=500, min_y=-500, max_y=500):
     x = (max_x - min_x) * np.random.random_sample() + min_x
     y = (max_y - min_y) * np.random.random_sample() + min_y
-    z = (max_z - min_z) * np.random.random_sample() + min_z
-    return Node(x, y, z)
+    return Node(x, y)
 
 
 def get_path(graph, goal_node):
@@ -146,7 +140,7 @@ def get_path(graph, goal_node):
 
 
 def distance_between(node1, node2):
-    return np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2 + (node2.z - node1.z) ** 2)
+    return np.sqrt((node2.x - node1.x) ** 2 + (node2.y - node1.y) ** 2)
 
 
 if __name__ == '__main__':

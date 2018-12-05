@@ -1,4 +1,3 @@
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,10 +24,9 @@ NEAREST_VERTEX(q, G)
 
 
 class Node:
-    def __init__(self, x, y, z, parent=None):
+    def __init__(self, x, y, parent=None):
         self.x = x
         self.y = y
-        self.z = z
         self.parent = parent
 
 
@@ -43,7 +41,7 @@ def build_rrt(q_init, q_goal, delta_q, max_iter=10000):
         G.append(q_new)
         if is_goal(q_new, q_goal, delta_q):
             print('Goal found!')
-            G.append(Node(q_goal.x, q_goal.y, q_goal.z, q_new))
+            G.append(Node(q_goal.x, q_goal.y, q_new))
             path = get_path(G)
             break
         if k >= max_iter:
@@ -51,48 +49,45 @@ def build_rrt(q_init, q_goal, delta_q, max_iter=10000):
             break
         k += 1
 
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    draw_graph(G, ax)
-    draw_graph(path, ax, '-r')
-    plt.title("iteration count: {}:\nstep: {};\nstart: ({}, {}, {}); goal: ({}, {}, {})"
-              .format(k, delta_q, np.round(q_init.x), np.round(q_init.y), np.round(q_init.z), np.round(q_goal.x),
-                      np.round(q_goal.y), np.round(q_goal.z)))
+    plt.figure()
+    plt.ioff()
+    draw_graph(G)
+    draw_graph(path, '-r')
+    plt.title("iteration count: {}:\nstep: {};\nstart: ({}, {}); goal: ({}, {})"
+              .format(k, delta_q, np.round(q_init.x), np.round(q_init.y), np.round(q_goal.x),
+                      np.round(q_goal.y)))
     plt.show()
     pass
 
 
-def random_configuration(min_x=-100, max_x=100, min_y=-100, max_y=100, min_z=-100, max_z=100):
+def random_configuration(min_x=-100, max_x=100, min_y=-100, max_y=100):
     x = (max_x - min_x) * np.random.random_sample() + min_x
     y = (max_y - min_y) * np.random.random_sample() + min_y
-    z = (max_z - min_z) * np.random.random_sample() + min_z
-    return Node(x, y, z)
+    return Node(x, y)
 
 
 def nearest_vertex(q, graph):
-    rho_list = [(node.x - q.x) ** 2 + (node.y - q.y) ** 2 + (node.z - q.z) ** 2 for node in graph]
+    rho_list = [(node.x - q.x) ** 2 + (node.y - q.y) ** 2 for node in graph]
     node_near = graph[rho_list.index(min(rho_list))]
     theta_xy = np.arctan2(q.y - node_near.y, q.x - node_near.x)
-    theta_xz = np.arctan2(q.z - node_near.z, q.y - node_near.y)
-    return [node_near, theta_xy, theta_xz]
+    return [node_near, theta_xy]
 
 
 def new_config(q, delta):
     x_new = q[0].x + np.cos(q[1]) * delta
     y_new = q[0].y + np.sin(q[1]) * delta
-    z_new = q[0].z + np.sin(q[2]) * delta
-    return Node(x_new, y_new, z_new, q[0])
+    return Node(x_new, y_new, q[0])
 
 
-def draw_graph(graph, ax, color='-g'):
+def draw_graph(graph, color='-g'):
     for node in graph:
         if node.parent is None:
             continue
-        ax.plot([node.x, node.parent.x], [node.y, node.parent.y], [node.z, node.parent.z], color)
+        plt.plot([node.x, node.parent.x], [node.y, node.parent.y], color)
 
 
 def is_goal(node, goal, delta):
-    rho = (node.x - goal.x) ** 2 + (node.y - goal.y) ** 2 + (node.z - goal.z) ** 2
+    rho = (node.x - goal.x) ** 2 + (node.y - goal.y) ** 2
     if rho <= delta ** 2:
         return True
     return False
@@ -110,7 +105,7 @@ def get_path(graph):
 
 
 if __name__ == '__main__':
-    min_step, max_step = 10, 30
+    min_step, max_step = 5, 30
     i = 0
     while i < 5:
         step = np.round((max_step - min_step) * np.random.random_sample() + min_step)
