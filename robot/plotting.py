@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import csv
-import constants as const
+from robot import constants as const
 import math
 
 robotPoints = [[0.0, 0.0, 0.0]]
